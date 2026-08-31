@@ -16,6 +16,9 @@ package directory should only contain what actually ships as part of the
   built (v0.3 compat, remaining operations, security-scheme typing,
   client hardening, REST/gRPC transport bindings, transport-specific
   clients).
+- `research/` — comparative research on other real A2A SDK implementations,
+  done to inform decisions in this client's own design (naming, request
+  shape, tenant handling, etc.).
 - `scripts/regen-grpc-stub.sh` — **backup copy only**, not the working
   copy. The real one still lives at `ballerina/scripts/regen-grpc-stub.sh`
   in `a2a-ballerina` and is what actually gets run; this is insurance in
