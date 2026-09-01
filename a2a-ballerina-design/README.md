@@ -20,12 +20,12 @@ package directory should only contain what actually ships as part of the
   done to inform decisions in this client's own design (naming, request
   shape, tenant handling, etc.).
 - `scripts/regen-grpc-stub.sh` — **backup copy only**, not the working
-  copy. The real one still lives at `ballerina/scripts/regen-grpc-stub.sh`
-  in `a2a-ballerina` and is what actually gets run; this is insurance in
-  case that file is ever lost, pending a decision on whether it moves to
-  `a2a-ballerina`'s repo-root `scripts/` or gets removed entirely (see
-  that repo's `API_REVIEW_CHECKLIST.md`). It regenerates
-  `modules/grpcstub/a2a_pb.bal` from the vendored `proto/a2a.proto` and
+  copy. The real one now lives at `a2a-ballerina`'s repo-root
+  `scripts/regen-grpc-stub.sh` (moved out of `ballerina/scripts/` since
+  the package directory should only ship what's part of the module) and
+  is what actually gets run; this is insurance in case that file is
+  ever lost. It regenerates `ballerina/modules/grpcstub/a2a_pb.bal` from
+  the vendored `ballerina/proto/a2a.proto` and
   applies the two scripted rewrites documented in `a2a-ballerina`'s
   `ballerina/proto/PROVENANCE.md` (that file stays in `a2a-ballerina` —
   it's tied to the vendored `proto/a2a.proto`, a real package resource,

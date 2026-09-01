@@ -1,12 +1,14 @@
 #!/usr/bin/env bash
-# Regenerates a2a/modules/grpcstub/a2a_pb.bal from a2a/proto/a2a.proto and
-# checks whether the result matches what's checked in. Run with --apply to
-# overwrite the checked-in file instead of just diffing.
+# Regenerates ballerina/modules/grpcstub/a2a_pb.bal from
+# ballerina/proto/a2a.proto and checks whether the result matches what's
+# checked in. Run with --apply to overwrite the checked-in file instead of
+# just diffing. Run from anywhere -- paths are resolved relative to this
+# script's own location, not the caller's working directory.
 set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-PROTO_DIR="$REPO_ROOT/proto"
-STUB_DIR="$REPO_ROOT/modules/grpcstub"
+PROTO_DIR="$REPO_ROOT/ballerina/proto"
+STUB_DIR="$REPO_ROOT/ballerina/modules/grpcstub"
 SCRATCH_DIR="$(mktemp -d)"
 trap 'rm -rf "$SCRATCH_DIR"' EXIT
 
@@ -29,7 +31,7 @@ fi
 # already, since the values of a `Struct`'s field map are `Value`s and those
 # surface as the `anydata` values of a `map<anydata>`. So this rewrite is not
 # an erasure -- it lines the generated type up with the runtime's real
-# representation. See a2a/modules/grpcstub/wellknown_desc.bal.
+# representation. See ballerina/modules/grpcstub/wellknown_desc.bal.
 echo "Post-processing 1/3: rewriting google_protobuf_Value -> anydata ..."
 OCCURRENCES=$(grep -o "google_protobuf_Value" "$GENERATED_FILE" | wc -l | tr -d ' ')
 if [ "$OCCURRENCES" -ne 2 ]; then
@@ -54,7 +56,7 @@ sed -i 's/google_protobuf_Value/anydata/g' "$GENERATED_FILE"
 #    Descriptors$FileDescriptor.findMessageTypeByName(String) because
 #    fileDescriptor is null".
 # Passing A2A_DESCRIPTOR_MAP (defined in the hand-maintained companion file
-# a2a/modules/grpcstub/wellknown_desc.bal, which this script does NOT
+# ballerina/modules/grpcstub/wellknown_desc.bal, which this script does NOT
 # generate or overwrite) resolves struct.proto for real, so Value/ListValue/
 # NullValue are proper descriptors and the runtime's existing
 # google.protobuf.Value <-> anydata machinery is reachable.
@@ -64,7 +66,7 @@ if [ "$STUB_OCCURRENCES" -ne 1 ]; then
     echo "ERROR: expected exactly 1 occurrence of 'initStub(self, A2A_DESC)', found $STUB_OCCURRENCES." >&2
     echo "The bal grpc tool's output shape has changed — do not proceed with this rewrite." >&2
     echo "If the tool now emits its own descriptor map, drop this step and delete" >&2
-    echo "A2A_DESCRIPTOR_MAP from modules/grpcstub/wellknown_desc.bal." >&2
+    echo "A2A_DESCRIPTOR_MAP from ballerina/modules/grpcstub/wellknown_desc.bal." >&2
     exit 1
 fi
 sed -i 's/initStub(self, A2A_DESC)/initStub(self, A2A_DESC, A2A_DESCRIPTOR_MAP)/' "$GENERATED_FILE"
@@ -113,5 +115,5 @@ if ! diff -q "$GENERATED_FILE" "$STUB_DIR/a2a_pb.bal" >/dev/null 2>&1; then
 fi
 
 echo "OK: checked-in stub matches regeneration from a2a.proto."
-echo "Note: modules/grpcstub/wellknown_desc.bal is hand-maintained, not generated,"
+echo "Note: ballerina/modules/grpcstub/wellknown_desc.bal is hand-maintained, not generated,"
 echo "      and is deliberately not compared here."
